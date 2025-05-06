@@ -29,19 +29,10 @@ año = st.sidebar.selectbox("Año", [2021, 2022, 2023, 2024, 2025])
 mes = st.sidebar.selectbox("Mes", list(range(1, 13)))
 semana = st.sidebar.slider("Semana", 1, 52)
 
-# Filtrado de datos
-def filtrar_datos(periodo, fecha_inicio=None, fecha_fin=None):
-    if periodo == 'Año':
-        return bitcoin_data[(bitcoin_data['datetime'].dt.year == fecha_inicio.year) & (bitcoin_data['datetime'] <= fecha_fin)]
-    elif periodo == 'Mes':
-        return bitcoin_data[(bitcoin_data['datetime'].dt.year == fecha_inicio.year) & (bitcoin_data['datetime'].dt.month == fecha_inicio.month)]
-    elif periodo == 'Semana':
-        return bitcoin_data[(bitcoin_data['datetime'].dt.year == fecha_inicio.year) & (bitcoin_data['datetime'].dt.isocalendar().week == fecha_inicio.isocalendar().week)]
-    elif periodo == 'Rango de Fechas':
-        return bitcoin_data[(bitcoin_data['datetime'] >= fecha_inicio) & (bitcoin_data['datetime'] <= fecha_fin)]
-    return bitcoin_data
-
 # Determinar rango seleccionado
+fecha_inicio = None
+fecha_fin = None
+
 if opcion == 'Año':
     fecha_inicio = datetime(año, 1, 1)
     fecha_fin = datetime(año, 12, 31)
@@ -53,8 +44,20 @@ elif opcion == 'Semana':
     fecha_inicio -= timedelta(days=fecha_inicio.weekday())  # lunes
     fecha_fin = fecha_inicio + timedelta(days=6)
 elif opcion == 'Rango de Fechas':
-    fecha_inicio = st.sidebar.date_input("Fecha Inicio", datetime(2023, 1, 1))
-    fecha_fin = st.sidebar.date_input("Fecha Fin", datetime(2023, 12, 31))
+    fecha_inicio = pd.to_datetime(st.sidebar.date_input("Fecha Inicio", datetime(2023, 1, 1), key="fecha_inicio"))
+    fecha_fin = pd.to_datetime(st.sidebar.date_input("Fecha Fin", datetime(2023, 12, 31), key="fecha_fin"))
+
+# Filtrado de datos
+def filtrar_datos(periodo, fecha_inicio=None, fecha_fin=None):
+    if periodo == 'Año':
+        return bitcoin_data[(bitcoin_data['datetime'].dt.year == fecha_inicio.year) & (bitcoin_data['datetime'] <= fecha_fin)]
+    elif periodo == 'Mes':
+        return bitcoin_data[(bitcoin_data['datetime'].dt.year == fecha_inicio.year) & (bitcoin_data['datetime'].dt.month == fecha_inicio.month)]
+    elif periodo == 'Semana':
+        return bitcoin_data[(bitcoin_data['datetime'].dt.year == fecha_inicio.year) & (bitcoin_data['datetime'].dt.isocalendar().week == fecha_inicio.isocalendar().week)]
+    elif periodo == 'Rango de Fechas':
+        return bitcoin_data[(bitcoin_data['datetime'] >= fecha_inicio) & (bitcoin_data['datetime'] <= fecha_fin)]
+    return bitcoin_data
 
 # Gráfica
 bitcoin_filtrado = filtrar_datos(opcion, fecha_inicio, fecha_fin)
