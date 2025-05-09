@@ -21,6 +21,15 @@ y_pred = forecast['yhat']
 r2 = r2_score(y_real, y_pred)
 st.markdown(f"### R² del modelo: `{r2:.4f}`")
 
+# Mostrar métricas de error
+mae = mean_absolute_error(y_real, y_pred)
+mse = mean_squared_error(y_real, y_pred)
+rmse = np.sqrt(mse)
+
+with st.expander("Ver métricas de error (función de costo)"):
+    st.markdown(f"- **MAE** (Error absoluto medio): `{mae:.2f}`")
+    st.markdown(f"- **RMSE** (Raíz del error cuadrático medio): `{rmse:.2f}`")
+
 # Sidebar: selección de filtros
 st.sidebar.title("Filtros de Visualización")
 opcion = st.sidebar.selectbox("Selecciona periodo", ["Año", "Mes", "Semana", "Rango de Fechas"])
